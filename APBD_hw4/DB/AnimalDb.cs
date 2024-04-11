@@ -3,7 +3,7 @@ using Type = APBD_hw4.Models.Type;
 
 namespace APBD_hw4.DB;
 
-public class DB
+public class AnimalDb
 {
     public static List<Animal> Animals = new()
     {
