@@ -1,44 +1,46 @@
+using APBD_hw4.DB;
+using APBD_hw4.Models;
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+builder.Services.AddControllers();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+var program = builder.Build();
+
+if (program.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    program.UseSwagger();
+    program.UseSwaggerUI();
+    
 }
 
-app.UseHttpsRedirection();
+program.MapGet("api/animals", () =>{
+    return Results.Ok(DB.Animals);
+});
 
-var summaries = new[]
+program.MapGet("api/animals/{id:int}", (int id) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    Animal animal = DB.Animals.FirstOrDefault(a => a.Id == id);
+    return animal is null ? Results.NotFound() : Results.Ok(animal);
+});
 
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+program.MapPost("/api/animals", ([FromBody] Animal animal) =>
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+   DB.Animals.Add(animal);
+   return Results.Created($"/api/animals{animal.Id}", animal);
+});
+
+program.MapPut("/api/animals{id:int}", (int id,[FromBody] Animal animal) =>
+{
+    Animal animalToCheck = DB.Animals.FirstOrDefault(a => a.Id == id);
+    if (animalToCheck is null) return Results.NotFound($"Animal with id {id} not found");
+    animalToCheck.Name = animal.Name;
+    animalToCheck.Colour = animal.Colour;
+    animalToCheck.Weight = animal.Weight;
+    animalToCheck.Colour = animal.Colour;
+    return Results.Ok(animalToCheck);
+});

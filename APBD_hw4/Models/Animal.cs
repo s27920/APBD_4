@@ -17,4 +17,33 @@ public class Animal
         _weight = weight;
         _colour = colour;
     }
+
+    public int Id
+    {
+        get => id;
+    }
+
+    public string Name
+    {
+        get => _name;
+        set => _name = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public Type Specie
+    {
+        get => _specie;
+        set => _specie = value;
+    }
+
+    public double Weight
+    {
+        get => _weight;
+        set => _weight = value;
+    }
+
+    public string Colour
+    {
+        get => _colour;
+        set => _colour = value ?? throw new ArgumentNullException(nameof(value));
+    }
 }
